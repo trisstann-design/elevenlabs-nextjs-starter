@@ -7,6 +7,7 @@ import ConversationRoom from './components/conversation-room';
 
 export default function AgentRoomPage() {
   const [userName, setUserName] = useState<string | null>(null);
+    // Generate unique room ID for tracking this conversation session
   const [roomId] = useState(() => 'agent-room-' + Date.now());
   const conversation = useConversation();
 
