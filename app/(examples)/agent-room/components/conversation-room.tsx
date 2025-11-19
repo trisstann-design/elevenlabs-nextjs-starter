@@ -59,7 +59,7 @@ export default function ConversationRoom({
 
   const handleEndCall = async () => {
     await endSession();
-    onLeave?.(););
+onLeave?.(); 
   };
 
   return (
