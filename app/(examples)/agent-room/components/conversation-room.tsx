@@ -22,6 +22,7 @@ interface ConversationRoomProps {
   userName: string;
   roomId: string;
 conversation: ConversationContextType;    onLeave?: () => void;
+   agentId?: string;
 }
 
 export default function ConversationRoom({
