@@ -1,52 +1,45 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { PhoneOff, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
-interface SessionConfig {
-  agentId: string;
-  connectionType: string;
-  userId: string;
-  micMuted: boolean;
-  volume: number;
-}
-
-interface ConversationContextType {
-  status: 'connected' | 'disconnected' | 'connecting';
-  isSpeaking: boolean;
-  startSession: (config: SessionConfig) => Promise<void>;
-  endSession: () => Promise<void>;
-  messages: Array<{ source: 'user' | 'agent'; message: string }>;
-}
+import type { Conversation } from '@elevenlabs/react';
 
 interface ConversationRoomProps {
   userName: string;
   roomId: string;
-conversation: ConversationContextType;    onLeave?: () => void;
-   agentId?: string;
+  conversation: Conversation; // ✅ Official type
+  messages: Array<{ source: string; message: string }>;
+  micMuted: boolean;
+  setMicMuted: (muted: boolean) => void;
+  volume: number;
+  setVolume: (volume: number) => void;
+  onLeave?: () => void;
+  agentId?: string;
 }
 
 export default function ConversationRoom({
   userName,
   roomId,
   conversation,
+  messages,
+  micMuted,
+  setMicMuted,
+  volume,
+  setVolume,
   onLeave,
   agentId,
 }: ConversationRoomProps) {
-  const [isMicMuted, setIsMicMuted] = useState(false);
-  const [isSpeakerMuted, setIsSpeakerMuted] = useState(false);
-
-  const { status, isSpeaking, startSession, endSession, messages } = conversation;
+  const { status, isSpeaking, startSession, endSession } = conversation;
 
   useEffect(() => {
     const start = async () => {
       if (status === 'disconnected' && agentId) {
         try {
+          // ✅ Σωστό startSession - χωρίς micMuted και volume
           await startSession({
             agentId,
             connectionType: 'webrtc',
             userId: userName,
-                              micMuted: isMicMuted,
-                              volume: isSpeakerMuted ? 0 : 1,
           });
         } catch (error) {
           console.error('Failed to start session:', error);
@@ -55,11 +48,21 @@ export default function ConversationRoom({
     };
 
     start();
-  }, [agentId, startSession, status, userName, isMicMuted, isSpeakerMuted]);
+  }, [agentId, startSession, status, userName]);
 
   const handleEndCall = async () => {
     await endSession();
-onLeave?.(); 
+    onLeave?.();
+  };
+
+  const handleToggleMute = () => {
+    setMicMuted(!micMuted);
+  };
+
+  const handleToggleSpeaker = () => {
+    const newVolume = volume === 0 ? 1 : 0;
+    setVolume(newVolume);
+    conversation.setVolume({ volume: newVolume });
   };
 
   return (
@@ -93,34 +96,32 @@ onLeave?.();
             <p className="text-slate-500 text-center mt-20">Waiting for response...</p>
           ) : (
             <div className="space-y-3">
-              {messages
-                .filter((msg) => msg.source === 'user' || msg.source === 'agent')
-                .map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`text-sm p-3 rounded-lg ${
-                      msg.source === 'user'
-                        ? 'bg-purple-600/30 text-purple-200 ml-8'
-                        : 'bg-blue-600/30 text-blue-200 mr-8'
-                    }`}
-                  >
-                    {msg.message}
-                  </div>
-                ))}
+              {messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`text-sm p-3 rounded-lg ${
+                    msg.source === 'user'
+                      ? 'bg-purple-600/30 text-purple-200 ml-8'
+                      : 'bg-blue-600/30 text-blue-200 mr-8'
+                  }`}
+                >
+                  {msg.message}
+                </div>
+              ))}
             </div>
           )}
         </div>
 
         <div className="flex items-center justify-center gap-4">
           <button
-            onClick={() => setIsMicMuted(!isMicMuted)}
+            onClick={handleToggleMute}
             className={`p-4 rounded-full transition-all ${
-              isMicMuted
+              micMuted
                 ? 'bg-red-600 hover:bg-red-700'
                 : 'bg-slate-700 hover:bg-slate-600'
             }`}
           >
-            {isMicMuted ? (
+            {micMuted ? (
               <MicOff className="w-6 h-6 text-white" />
             ) : (
               <Mic className="w-6 h-6 text-white" />
@@ -135,14 +136,14 @@ onLeave?.();
           </button>
 
           <button
-            onClick={() => setIsSpeakerMuted(!isSpeakerMuted)}
+            onClick={handleToggleSpeaker}
             className={`p-4 rounded-full transition-all ${
-              isSpeakerMuted
+              volume === 0
                 ? 'bg-red-600 hover:bg-red-700'
                 : 'bg-slate-700 hover:bg-slate-600'
             }`}
           >
-            {isSpeakerMuted ? (
+            {volume === 0 ? (
               <VolumeX className="w-6 h-6 text-white" />
             ) : (
               <Volume2 className="w-6 h-6 text-white" />
