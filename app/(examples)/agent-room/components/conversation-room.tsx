@@ -2,12 +2,11 @@
 
 import { useEffect } from 'react';
 import { PhoneOff, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
-import type { Conversation } from '@elevenlabs/react';
 
 interface ConversationRoomProps {
   userName: string;
   roomId: string;
-  conversation: Conversation; // ✅ Official type
+  conversation: ReturnType<typeof import('@elevenlabs/react').useConversation>; // ✅ Σωστό
   messages: Array<{ source: string; message: string }>;
   micMuted: boolean;
   setMicMuted: (muted: boolean) => void;
@@ -35,7 +34,6 @@ export default function ConversationRoom({
     const start = async () => {
       if (status === 'disconnected' && agentId) {
         try {
-          // ✅ Σωστό startSession - χωρίς micMuted και volume
           await startSession({
             agentId,
             connectionType: 'webrtc',
@@ -60,9 +58,7 @@ export default function ConversationRoom({
   };
 
   const handleToggleSpeaker = () => {
-    const newVolume = volume === 0 ? 1 : 0;
-    setVolume(newVolume);
-    conversation.setVolume({ volume: newVolume });
+    setVolume(volume === 0 ? 1 : 0);
   };
 
   return (
