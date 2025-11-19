@@ -7,9 +7,29 @@ import ConversationRoom from './components/conversation-room';
 
 export default function AgentRoomPage() {
   const [userName, setUserName] = useState<string | null>(null);
-    // Generate unique room ID for tracking this conversation session
   const [roomId] = useState(() => 'agent-room-' + Date.now());
-  const conversation = useConversation();
+  const [messages, setMessages] = useState<Array<{ source: string; message: string }>>([]);
+  const [micMuted, setMicMuted] = useState(false);
+  const [volume, setVolume] = useState(1);
+
+  // ✅ Σωστή χρήση του useConversation με callbacks
+  const conversation = useConversation({
+    micMuted,
+    volume,
+    onMessage: (props) => {
+      const { message, source } = props;
+      setMessages(prev => [...prev, { message, source }]);
+    },
+    onConnect: () => {
+      console.log('Connected to agent');
+    },
+    onDisconnect: () => {
+      console.log('Disconnected from agent');
+    },
+    onError: (error) => {
+      console.error('Conversation error:', error);
+    }
+  });
 
   const handleJoinRoom = (name: string) => {
     setUserName(name);
@@ -18,6 +38,7 @@ export default function AgentRoomPage() {
   const handleLeaveRoom = () => {
     conversation.endSession();
     setUserName(null);
+    setMessages([]);
   };
 
   return (
@@ -29,6 +50,11 @@ export default function AgentRoomPage() {
           userName={userName}
           roomId={roomId}
           conversation={conversation}
+          messages={messages}
+          micMuted={micMuted}
+          setMicMuted={setMicMuted}
+          volume={volume}
+          setVolume={setVolume}
           onLeave={handleLeaveRoom}
           agentId={process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID}
         />
