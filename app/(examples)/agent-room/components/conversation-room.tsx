@@ -32,6 +32,8 @@ export default function ConversationRoom({
             agentId,
             connectionType: 'webrtc',
             userId: userName,
+                              micMuted: isMicMuted,
+                              volume: isSpeakerMuted ? 0 : 1,
           });
         } catch (error) {
           console.error('Failed to start session:', error);
@@ -40,7 +42,7 @@ export default function ConversationRoom({
     };
 
     start();
-  }, [agentId, startSession, status, userName]);
+  }, [agentId, startSession, status, userName, isMicMuted, isSpeakerMuted]);
 
   const handleEndCall = async () => {
     await endSession();
