@@ -1,14 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ConversationContextType } from '@elevenlabs/react';
-import { PhoneOff, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+// Conversation type from ElevenLabs SDKimport { PhoneOff, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 
 interface ConversationRoomProps {
   userName: string;
   roomId: string;
-  conversation: ConversationContextType;
-  onLeave: () => void;
+  conversation: any;
   agentId?: string;
 }
 
