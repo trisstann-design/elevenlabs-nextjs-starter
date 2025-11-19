@@ -2,10 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { PhoneOff, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+interface SessionConfig {
+  agentId: string;
+  connectionType: string;
+  userId: string;
+  micMuted: boolean;
+  volume: number;
+}
+
 interface ConversationContextType {
   status: 'connected' | 'disconnected' | 'connecting';
   isSpeaking: boolean;
-  startSession: (config: any) => Promise<void>;
+  startSession: (config: SessionConfig) => Promise<void>;
   endSession: () => Promise<void>;
   messages: Array<{ source: 'user' | 'agent'; message: string }>;
 }
