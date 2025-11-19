@@ -2,11 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { PhoneOff, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+interface ConversationContextType {
+  status: 'connected' | 'disconnected' | 'connecting';
+  isSpeaking: boolean;
+  startSession: (config: any) => Promise<void>;
+  endSession: () => Promise<void>;
+  messages: Array<{ source: 'user' | 'agent'; message: string }>;
+}
+
 interface ConversationRoomProps {
   userName: string;
   roomId: string;
-  conversation: object;  agentId?: string;
-    onLeave?: () => void;
+conversation: ConversationContextType;    onLeave?: () => void;
 }
 
 export default function ConversationRoom({
