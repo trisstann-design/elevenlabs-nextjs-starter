@@ -6,6 +6,7 @@ interface ConversationRoomProps {
   userName: string;
   roomId: string;
   conversation: object;  agentId?: string;
+    onLeave?: () => void;
 }
 
 export default function ConversationRoom({
